@@ -15,6 +15,8 @@
 // Our custom config handler
 // import EnvironmentConfig from '../../config/index'
 
+const AWS = require('aws-sdk')
+
 // Added to support use of Cucumber features
 const cucumber = require('cypress-cucumber-preprocessor').default
 
@@ -59,6 +61,19 @@ module.exports = (on, config) => {
   // `config` is the resolved Cypress config
 
   on('file:preprocessor', cucumber())
+
+  on('task', {
+    s3Upload ({ Body, Bucket, Key, filename, accessKeyId, secretAccessKey, region }) {
+      const s3 = new AWS.S3({ apiVersion: '2006-03-01', accessKeyId, secretAccessKey, region })
+      const fullKey = path.join(Key, filename)
+      s3.putObject({ Bucket, Key: fullKey, Body }, (err, data) => {
+        if (err) {
+          throw err
+        }
+      })
+      return path.join(Bucket, fullKey)
+    }
+  })
 
   config = loadDotenvPlugin(config)
 
