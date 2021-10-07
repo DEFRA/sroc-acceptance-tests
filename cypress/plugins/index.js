@@ -68,9 +68,19 @@ module.exports = (on, config) => {
       const client = new S3Client()
       const command = new PutObjectCommand({ Bucket, Key, Body })
 
-      client.send(command)
-
-      return path.join(Bucket, Key)
+      return new Promise((resolve, reject) => {
+        client
+          .send(command)
+          .then(
+            // If client.send() was successful then resolve the promise so Cypress can continue
+            data => {
+              resolve(path.join(Bucket, Key))
+            },
+            // If client.send() failed then reject the promise so Cypress can throw an error
+            error => {
+              reject(error)
+            })
+      })
     }
   })
 
