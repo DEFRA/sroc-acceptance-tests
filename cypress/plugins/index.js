@@ -72,7 +72,8 @@ module.exports = (on, config) => {
         client
           .send(command)
           .then(
-            // If client.send() was successful then resolve the promise so Cypress can continue
+            // If client.send() was successful then resolve the promise so Cypress can continue, returning the remote
+            // file path so we can log it.
             data => {
               resolve(path.join(Bucket, Key))
             },
