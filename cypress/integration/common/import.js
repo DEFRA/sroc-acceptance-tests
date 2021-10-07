@@ -1,5 +1,4 @@
 import { Given } from 'cypress-cucumber-preprocessor/steps'
-// import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 
 Given('I import the file {string}', (filename) => {
   cy.fixture(filename)
