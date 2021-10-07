@@ -63,15 +63,15 @@ module.exports = (on, config) => {
   on('file:preprocessor', cucumber())
 
   on('task', {
-    s3Upload ({ Body, Bucket, Key, filename }) {
+    s3Upload ({ Body, Bucket, remotePath, filename }) {
       const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
-      const fullKey = path.join(Key, filename)
-      s3.putObject({ Bucket, Key: fullKey, Body }, (err, data) => {
+      const Key = path.join(remotePath, filename)
+      s3.putObject({ Bucket, Key, Body }, (err, data) => {
         if (err) {
           throw err
         }
       })
-      return path.join(Bucket, fullKey)
+      return path.join(Bucket, Key)
     }
   })
 
