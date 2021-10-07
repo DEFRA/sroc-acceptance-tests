@@ -15,7 +15,7 @@
 // Our custom config handler
 // import EnvironmentConfig from '../../config/index'
 
-const AWS = require('aws-sdk')
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 
 // Added to support use of Cucumber features
 const cucumber = require('cypress-cucumber-preprocessor').default
@@ -64,13 +64,12 @@ module.exports = (on, config) => {
 
   on('task', {
     s3Upload ({ Body, Bucket, remotePath, filename }) {
-      const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
       const Key = path.join(remotePath, filename)
-      s3.putObject({ Bucket, Key, Body }, (err, data) => {
-        if (err) {
-          throw err
-        }
-      })
+      const client = new S3Client()
+      const command = new PutObjectCommand({ Bucket, Key, Body })
+
+      client.send(command)
+
       return path.join(Bucket, Key)
     }
   })

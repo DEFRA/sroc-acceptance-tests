@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/DEFRA/sroc-acceptance-tests#readme",
   "dependencies": {
-    "aws-sdk": "^2.1001.0",
+    "@aws-sdk/client-s3": "^3.35.0",
     "cucumber-html-reporter": "^5.5.0",
     "cypress": "^8.3.1",
     "cypress-cucumber-preprocessor": "^4.2.0",
