@@ -6,7 +6,7 @@ class TransactionsMenu {
   static options (regimeSlug) {
     return {
       'Transactions to be billed': `[href="/regimes/${regimeSlug}/transactions"]`,
-      'Transaction History': `[href="/regimes/${regimeSlug}/transactions"]`,
+      'Transaction History': `[href="/regimes/${regimeSlug}/history"]`,
       'Pre-April 2018 Transactions to be billed': `[href="/regimes/${regimeSlug}/retrospectives"]`,
       'Excluded Transactions': `[href="/regimes/${regimeSlug}/exclusions"]`,
       'Imported Transaction Files': `[href="/regimes/${regimeSlug}/imported_transaction_files"]`,
