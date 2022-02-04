@@ -1,4 +1,3 @@
-@wip
 Feature: CFD (Water Quality) Legacy
 
   Background:
