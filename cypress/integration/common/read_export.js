@@ -1,11 +1,32 @@
-import { Given } from 'cypress-cucumber-preprocessor/steps'
+import { Then, When } from 'cypress-cucumber-preprocessor/steps'
 
-Given('I read the export file {string}', (filePath) => {
+let exportData
+
+When('I read the export file {string}', (filePath) => {
   cy.task('s3Download', {
     Bucket: Cypress.env('S3_BUCKET'),
     remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
     filePath
   }).then(data => {
-    cy.log(data)
+    exportData = splitData(data)
   })
 })
+
+Then('row {int} column {int} equals {string}', (row, column, value) => {
+  expect(exportData[row][column]).to.equal(value)
+})
+
+/**
+ * Splits the data into a two-dimensional array, removing the double quotes that normally enclose each item.
+ */
+function splitData (data, row, column) {
+  return data
+    // Split the data into an array of lines
+    .split('\n')
+    // Split each line into an array of items, and use regex replace to remove enclosing quotes from each item.
+    // https://thispointer.com/remove-first-and-last-double-quotes-from-a-string-in-javascript/
+    .map(line => line
+      .split(',')
+      .map(item => item.replace(/(^"|"$)/g, ''))
+    )
+}

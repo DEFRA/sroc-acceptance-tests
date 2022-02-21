@@ -1,4 +1,6 @@
 Feature: Read Export Files
 
   Scenario: Read export file
-    Given I read the export file 'wrls/transaction/nalwi50001.dat'
+    When I read the export file 'wrls/transaction/nalwi50001.dat'
+    Then row 0 column 0 equals 'H'
+    Then row 1 column 1 equals '0000001'
