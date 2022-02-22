@@ -1,24 +1,26 @@
 import { Then, When } from 'cypress-cucumber-preprocessor/steps'
 
-let exportData
-
 When('I read the export file {string}', (filePath) => {
   cy.task('s3Download', {
     Bucket: Cypress.env('S3_BUCKET'),
     remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
     filePath
   }).then(data => {
-    exportData = splitData(data)
+    cy.wrap(splitData(data)).as('exportData')
   })
 })
 
 Then('row {int} column {int} equals {string}', (row, column, value) => {
-  expect(exportData[row][column]).to.equal(value)
+  cy.get('@exportData')
+    .then(exportData => expect(exportData[row][column]).to.equal(value))
 })
 
 Then('column {int} contains {string}', (column, value) => {
-  const columnData = exportData.map(row => row[column])
-  expect(columnData).to.include(value)
+  cy.get('@exportData')
+    .then(exportData => {
+      const columnData = exportData.map(row => row[column])
+      expect(columnData).to.include(value)
+    })
 })
 
 /**
