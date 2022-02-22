@@ -16,6 +16,11 @@ Then('row {int} column {int} equals {string}', (row, column, value) => {
   expect(exportData[row][column]).to.equal(value)
 })
 
+Then('column {int} contains {string}', (column, value) => {
+  const columnData = exportData.map(row => row[column])
+  expect(columnData).to.include(value)
+})
+
 /**
  * Splits the data into a two-dimensional array, removing the double quotes that normally enclose each item.
  */
