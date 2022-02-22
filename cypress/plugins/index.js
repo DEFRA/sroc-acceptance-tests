@@ -56,7 +56,7 @@ function loadDotenvPlugin (config) {
 /**
  * We use GetObjectCommand to read data from an S3 bucket. This returns a readable stream of data, which we need to
  * read in chunks then convert to a string for it to be usable.
- * https://github.com/aws/aws-sdk-js-v3/issues/1877#issuecomment-799697205
+ * https://github.com/aws/aws-sdk-js-v3/issues/1877
  * https://stackoverflow.com/questions/10623798/how-do-i-read-the-contents-of-a-node-js-stream-into-a-string-variable
  */
 function streamToString (stream) {
