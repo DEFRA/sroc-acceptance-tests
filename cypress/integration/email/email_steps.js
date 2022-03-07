@@ -7,6 +7,7 @@ import LastEmailPage from '../../pages/last_email_page'
 import AcceptInvitePage from '../../pages/accept_invite_page'
 import ForgotPasswordPage from '../../pages/forgot_password_page'
 import ChangePasswordPage from '../../pages/change_password_page'
+import UsersPage from '../../pages/users_page'
 
 Given('I am a new user', () => {
   const user = {
@@ -28,7 +29,7 @@ When('a new account is created for me', () => {
 
   MainMenu.admin.getOption('User Management', '').click()
 
-  cy.get('button#new-user').click()
+  UsersPage.addUserAccount().click()
 
   cy.get('@user').then((user) => {
     AddUserPage.email().type(user.email)
