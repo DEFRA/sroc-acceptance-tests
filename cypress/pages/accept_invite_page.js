@@ -1,4 +1,4 @@
-class AcceptInvite {
+class AcceptInvitePage {
   static visit (inviteLink) {
     cy.visit(inviteLink)
   }
@@ -20,4 +20,4 @@ class AcceptInvite {
   }
 }
 
-export default AcceptInvite
+export default AcceptInvitePage
