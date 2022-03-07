@@ -65,6 +65,19 @@ class LastEmailPage {
   }
 
   /**
+   * Extract the account unlock link from the unlock account email message
+   *
+   * @param {string} message the body of the email which contains the unlock account link we are trying to extract
+   *
+   * @returns {string} the link to follow to unlock the account. Will return an empty string if no match is found
+   */
+  static extractUnlockAccountLink (message) {
+    const pattern = /https?:\/\/.{14,35}\/auth\/unlock\?unlock_token=.{20}/gi
+
+    return this._extractLink(pattern, message)
+  }
+
+  /**
    * Checks the email message body contains all the expected text
    *
    * @param {string[]} expectedText Array of strings which represent text we expect to find in the email body to

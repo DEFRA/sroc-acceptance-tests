@@ -145,3 +145,36 @@ When('I follow the link to reset my password', () => {
     })
   })
 })
+
+And('I incorrectly enter my password 5 times', () => {
+  cy.get('@user').then((user) => {
+    SignInPage.email().type(user.email)
+
+    for (let i = 0; i < 5; i++) {
+      SignInPage.password().clear()
+      SignInPage.password().type(faker.random.alpha({ count: 10 }))
+
+      SignInPage.logIn().click()
+    }
+  })
+})
+
+When('I follow the link to unlock my account', () => {
+  cy.get('@user').then((user) => {
+    LastEmailPage.lastEmail([user.email, 'Your account has been locked'])
+
+    cy.get('@lastEmail').then((lastEmail) => {
+      const link = LastEmailPage.extractUnlockAccountLink(lastEmail.last_email.body)
+
+      cy.visit(link)
+    })
+  })
+})
+
+Then('I will see confirmation my account is unlocked', () => {
+  cy.get('.col > .alert')
+    .should(
+      'contain.text',
+      'Your account has been unlocked successfully. Please sign in to continue.'
+    )
+})
