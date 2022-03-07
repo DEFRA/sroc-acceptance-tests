@@ -18,6 +18,10 @@ class SignInPage {
   static logIn () {
     return cy.get('[name=commit]')
   }
+
+  static forgotPasswordLink () {
+    return cy.get('a[href="/auth/password/new"]')
+  }
 }
 
 export default SignInPage
