@@ -1,12 +1,12 @@
 import { And, Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { faker } from '@faker-js/faker'
-import SignInPage from '../../pages/sign_in_page'
-import MainMenu from '../../pages/menus/main_menu'
-import AddUserPage from '../../pages/add_user_page'
-import LastEmailPage from '../../pages/last_email_page'
 import AcceptInvitePage from '../../pages/accept_invite_page'
-import ForgotPasswordPage from '../../pages/forgot_password_page'
+import AddUserPage from '../../pages/add_user_page'
 import ChangePasswordPage from '../../pages/change_password_page'
+import ForgotPasswordPage from '../../pages/forgot_password_page'
+import LastEmailPage from '../../pages/last_email_page'
+import MainMenu from '../../pages/menus/main_menu'
+import SignInPage from '../../pages/sign_in_page'
 import UsersPage from '../../pages/users_page'
 
 Given('I am a new user', () => {
