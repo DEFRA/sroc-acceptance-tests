@@ -47,15 +47,8 @@ class LastEmailPage {
    */
   static extractInvitationLink (message) {
     const pattern = /https?:\/\/.{14,35}\/auth\/invitation\/accept\?invitation_token=.{20}/gi
-    const matches = message.match(pattern)
 
-    // You have the link itself and what is shown in the email so we always expect 2 matches. Both are identical so we
-    // just return the first result
-    if (matches) {
-      return matches[0]
-    }
-
-    return ''
+    return this._extractLink(pattern, message)
   }
 
   /**
@@ -67,15 +60,8 @@ class LastEmailPage {
    */
   static extractResetPasswordLink (message) {
     const pattern = /https?:\/\/.{14,35}\/auth\/password\/edit\?reset_password_token=.{20}/gi
-    const matches = message.match(pattern)
 
-    // You have the link itself and what is shown in the email so we always expect 2 matches. Both are identical so we
-    // just return the first result
-    if (matches) {
-      return matches[0]
-    }
-
-    return ''
+    return this._extractLink(pattern, message)
   }
 
   /**
@@ -89,6 +75,18 @@ class LastEmailPage {
     return expectedText.every((text) => {
       return body.includes(text)
     })
+  }
+
+  static _extractLink (pattern, message) {
+    const matches = message.match(pattern)
+
+    // You have the link itself and what is shown in the email so we always expect 2 matches. Both are identical so we
+    // just return the first result
+    if (matches) {
+      return matches[0]
+    }
+
+    return ''
   }
 }
 
