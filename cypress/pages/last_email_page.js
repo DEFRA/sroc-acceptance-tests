@@ -45,8 +45,28 @@ class LastEmailPage {
    *
    * @returns {string} the link to follow to accept the invitation. Will return an empty string if no match is found
    */
-  static extractInvitation (message) {
+  static extractInvitationLink (message) {
     const pattern = /https?:\/\/.{14,35}\/auth\/invitation\/accept\?invitation_token=.{20}/gi
+    const matches = message.match(pattern)
+
+    // You have the link itself and what is shown in the email so we always expect 2 matches. Both are identical so we
+    // just return the first result
+    if (matches) {
+      return matches[0]
+    }
+
+    return ''
+  }
+
+  /**
+   * Extract the reset password link from the forgotten password email message
+   *
+   * @param {string} message the body of the email which contains the reset password link we are trying to extract
+   *
+   * @returns {string} the link to follow to reset the password. Will return an empty string if no match is found
+   */
+  static extractResetPasswordLink (message) {
+    const pattern = /https?:\/\/.{14,35}\/auth\/password\/edit\?reset_password_token=.{20}/gi
     const matches = message.match(pattern)
 
     // You have the link itself and what is shown in the email so we always expect 2 matches. Both are identical so we
