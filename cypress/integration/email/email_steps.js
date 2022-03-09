@@ -1,5 +1,6 @@
 import { And, Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
-import { faker } from '@faker-js/faker'
+import { generateUserHelper, generateStringHelper } from '../../support/helpers'
+
 import AcceptInvitePage from '../../pages/accept_invite_page'
 import AddUserPage from '../../pages/add_user_page'
 import ChangePasswordPage from '../../pages/change_password_page'
@@ -10,22 +11,13 @@ import SignInPage from '../../pages/sign_in_page'
 import UsersPage from '../../pages/users_page'
 
 Given('I am a new user', () => {
-  const user = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName()
-  }
-  // First part of the email address
-  const emailName = `${user.firstName}.${user.lastName}${faker.datatype.number({ min: 10, max: 100 })}`.replace("'", '')
-  user.email = `${emailName}@example.com`.toLowerCase()
+  const user = generateUserHelper()
 
   cy.wrap(user).as('user')
 })
 
 When('a new account is created for me', () => {
-  SignInPage.visit()
-  SignInPage.email().type(Cypress.config().users.admin.email)
-  SignInPage.password().type(Cypress.env('PASSWORD'))
-  SignInPage.logIn().click()
+  cy.signIn(Cypress.config().users.admin.email)
 
   MainMenu.admin.getOption('User Management', '').click()
 
@@ -39,7 +31,7 @@ When('a new account is created for me', () => {
     AddUserPage.regimeAccess('Waste').click()
     AddUserPage.addAndInviteUser().click()
 
-    cy.get('div.alert-info.alert-dismissable')
+    cy.get('.col > .alert')
       .should('contain.text', 'User account created')
 
     MainMenu.user.getOption('Sign out').click()
@@ -74,39 +66,14 @@ Then('I will be signed in with my new account', () => {
 })
 
 Given('I am an existing user', () => {
-  const user = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName()
-  }
-  // First part of the email address
-  const emailName = `${user.firstName}.${user.lastName}${faker.datatype.number({ min: 10, max: 100 })}`.replace("'", '')
-  user.email = `${emailName}@example.com`.toLowerCase()
+  cy.authenticate(Cypress.config().users.admin.email)
 
-  cy.wrap(user).as('user')
+  const user = generateUserHelper()
+  cy.wrap(user, { log: false }).as('user')
 
-  SignInPage.visit()
-  SignInPage.email().type(Cypress.config().users.admin.email)
-  SignInPage.password().type(Cypress.env('PASSWORD'))
-  SignInPage.logIn().click()
-
-  MainMenu.admin.getOption('User Management', '').click()
-
-  cy.get('button#new-user').click()
-
-  cy.get('@user').then((user) => {
-    AddUserPage.email().type(user.email)
-    AddUserPage.firstName().type(user.firstName)
-    AddUserPage.lastName().type(user.lastName)
-
-    AddUserPage.regimeAccess('Waste').click()
-    AddUserPage.addAndInviteUser().click()
-
-    cy.get('div.alert-info.alert-dismissable')
-      .should('contain.text', 'User account created')
-
-    MainMenu.user.getOption('Sign out').click()
-    cy.get('h1').should('contain', 'Sign in')
-    cy.url().should('include', '/auth/sign_in')
+  cy.get('@user', { log: false }).then((user) => {
+    cy.addUser(user)
+    cy.signOut()
   })
 })
 
@@ -152,7 +119,7 @@ And('I incorrectly enter my password 5 times', () => {
 
     for (let i = 0; i < 5; i++) {
       SignInPage.password().clear()
-      SignInPage.password().type(faker.random.alpha({ count: 10 }))
+      SignInPage.password().type(generateStringHelper())
 
       SignInPage.logIn().click()
     }
