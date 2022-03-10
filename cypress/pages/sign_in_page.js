@@ -22,6 +22,10 @@ class SignInPage {
   static forgotPasswordLink () {
     return cy.get('a[href="/auth/password/new"]')
   }
+
+  static resendUnlockLink () {
+    return cy.get('a[href="/auth/unlock/new"]')
+  }
 }
 
 export default SignInPage

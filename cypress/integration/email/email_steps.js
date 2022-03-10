@@ -8,6 +8,7 @@ import EditUserPage from '../../pages/edit_user_page'
 import ForgotPasswordPage from '../../pages/forgot_password_page'
 import LastEmailPage from '../../pages/last_email_page'
 import MainMenu from '../../pages/menus/main_menu'
+import ResendUnlockPage from '../../pages/resend_unlock_page'
 import SignInPage from '../../pages/sign_in_page'
 import UsersPage from '../../pages/users_page'
 
@@ -184,5 +185,35 @@ Then('the TCM will confirm the user has been reinvited', () => {
     .should(
       'contain.text',
       'User reinvited'
+    )
+})
+
+But('I miss the first unlock email', () => {
+  cy.get('@user').then((user) => {
+    LastEmailPage.lastEmail([user.email, 'Your account has been locked'])
+
+    cy.get('@lastEmail').then((lastEmail) => {
+      const link = LastEmailPage.extractUnlockAccountLink(lastEmail.last_email.body)
+
+      cy.wrap(link).as('firstLink')
+    })
+  })
+})
+
+And('request another unlock email', () => {
+  SignInPage.visit()
+  SignInPage.resendUnlockLink().click()
+
+  cy.get('@user').then((user) => {
+    ResendUnlockPage.email().type(user.email)
+    ResendUnlockPage.resendUnlockInstructions().click()
+  })
+})
+
+Then('I will see confirmation an unlock email has been sent', () => {
+  cy.get('.col > .alert')
+    .should(
+      'contain.text',
+      'If your account exists, you will receive an email with instructions for how to unlock it in a few minutes.'
     )
 })
