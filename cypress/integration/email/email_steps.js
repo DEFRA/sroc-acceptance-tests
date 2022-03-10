@@ -1,9 +1,10 @@
-import { And, Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
+import { And, But, Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { generateUserHelper, generateStringHelper } from '../../support/helpers'
 
 import AcceptInvitePage from '../../pages/accept_invite_page'
 import AddUserPage from '../../pages/add_user_page'
 import ChangePasswordPage from '../../pages/change_password_page'
+import EditUserPage from '../../pages/edit_user_page'
 import ForgotPasswordPage from '../../pages/forgot_password_page'
 import LastEmailPage from '../../pages/last_email_page'
 import MainMenu from '../../pages/menus/main_menu'
@@ -33,14 +34,14 @@ When('a new account is created for me', () => {
 
     cy.get('.col > .alert')
       .should('contain.text', 'User account created')
-
-    MainMenu.user.getOption('Sign out').click()
-    cy.get('h1').should('contain', 'Sign in')
-    cy.url().should('include', '/auth/sign_in')
   })
 })
 
 And('I accept the invitation', () => {
+  MainMenu.user.getOption('Sign out').click()
+  cy.get('h1').should('contain', 'Sign in')
+  cy.url().should('include', '/auth/sign_in')
+
   cy.get('@user').then((user) => {
     LastEmailPage.lastEmail([user.email, 'created an account'])
 
@@ -143,5 +144,45 @@ Then('I will see confirmation my account is unlocked', () => {
     .should(
       'contain.text',
       'Your account has been unlocked successfully. Please sign in to continue.'
+    )
+})
+
+But('I miss the first invitation email', () => {
+  cy.get('@user').then((user) => {
+    LastEmailPage.lastEmail([user.email, 'created an account'])
+
+    cy.get('@lastEmail').then((lastEmail) => {
+      const link = LastEmailPage.extractUnlockAccountLink(lastEmail.last_email.body)
+
+      cy.wrap(link).as('firstLink')
+    })
+  })
+})
+
+And('request another invitation email', () => {
+  MainMenu.admin.getOption('User Management', '').click()
+
+  cy.get('@user').then((user) => {
+    UsersPage.searchName().type(user.lastName)
+    UsersPage.search().click()
+
+    UsersPage.searchResults().each((element, index) => {
+      cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) td`).eq(2).invoke('text').then((email) => {
+        if (email === user.email) {
+          cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1})`).invoke('attr', 'id').then((id) => {
+            UsersPage.searchResultEdit(id).click()
+            EditUserPage.resendInvite().click()
+          })
+        }
+      })
+    })
+  })
+})
+
+Then('the TCM will confirm the user has been reinvited', () => {
+  cy.get('.col > .alert')
+    .should(
+      'contain.text',
+      'User reinvited'
     )
 })
