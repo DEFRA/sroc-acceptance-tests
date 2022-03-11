@@ -1,6 +1,5 @@
 import { And, But, Then, When } from 'cypress-cucumber-preprocessor/steps'
 
-import MainMenu from '../../../pages/menus/main_menu'
 import ChangePasswordPage from '../../../pages/change_password_page'
 import ForgotPasswordPage from '../../../pages/forgot_password_page'
 import LastEmailPage from '../../../pages/last_email_page'
