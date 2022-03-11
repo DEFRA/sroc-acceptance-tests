@@ -6,5 +6,14 @@ Feature: Expired Tokens
     But I miss the first invitation email
     And request another invitation email
     Then the TCM will confirm the user has been reinvited
-    And I try to accept the first invitation
+    And I try to accept the first invitation email
     Then the TCM will confuse me and not be helpful
+
+  Scenario: Expired unlock email
+    Given I am an existing user
+    And I incorrectly enter my password 5 times
+    But I miss the first unlock email
+    And request another unlock email
+    Then I will see confirmation an unlock email has been sent
+    And I try to accept the first unlock email
+    Then I will be directed to the resend unlock page and told my token is invalid
