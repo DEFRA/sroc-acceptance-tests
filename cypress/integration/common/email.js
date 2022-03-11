@@ -4,6 +4,7 @@ import { generateUserHelper, generateStringHelper } from '../../support/helpers'
 import AcceptInvitePage from '../../pages/accept_invite_page'
 import AddUserPage from '../../pages/add_user_page'
 import EditUserPage from '../../pages/edit_user_page'
+import ForgotPasswordPage from '../../pages/forgot_password_page'
 import LastEmailPage from '../../pages/last_email_page'
 import MainMenu from '../../pages/menus/main_menu'
 import ResendUnlockPage from '../../pages/resend_unlock_page'
@@ -88,6 +89,24 @@ And('I incorrectly enter my password 5 times', () => {
       SignInPage.logIn().click()
     }
   })
+})
+
+And('I have forgotten my password', () => {
+  SignInPage.visit()
+  SignInPage.forgotPasswordLink().click()
+
+  ForgotPasswordPage.mainHeading().should('contain', 'Forgot your password?')
+
+  cy.get('@user').then((user) => {
+    ForgotPasswordPage.email().type(user.email)
+    ForgotPasswordPage.sendMeResetPasswordInstructions().click()
+  })
+
+  cy.get('.col > .alert')
+    .should(
+      'contain.text',
+      'If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'
+    )
 })
 
 When('I follow the link to unlock my account', () => {

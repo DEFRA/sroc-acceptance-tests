@@ -9,6 +9,14 @@ Feature: Expired Tokens
     And I try to accept the first invitation email
     Then the TCM will confuse me and not be helpful
 
+  Scenario: Expired reset password email
+    Given I am an existing user
+    And I have forgotten my password
+    But I miss the first reset password email
+    And request another reset password email
+    When I try to accept the first reset password email
+    Then I will be told my token is invalid
+
   Scenario: Expired unlock email
     Given I am an existing user
     And I incorrectly enter my password 5 times

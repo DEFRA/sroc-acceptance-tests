@@ -1,4 +1,9 @@
 class ChangePasswordPage {
+  static confirm () {
+    cy.get('h1').should('contain', 'Change your password')
+    cy.url().should('include', '/auth/password')
+  }
+
   static mainHeading () {
     return cy.get('h1')
   }
