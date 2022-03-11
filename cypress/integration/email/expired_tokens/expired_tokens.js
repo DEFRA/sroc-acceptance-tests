@@ -38,9 +38,7 @@ And('request another reset password email', () => {
 })
 
 And('I try to accept the first invitation email', () => {
-  MainMenu.user.getOption('Sign out').click()
-  cy.get('h1').should('contain', 'Sign in')
-  cy.url().should('include', '/auth/sign_in')
+  cy.signOut()
 
   cy.get('@firstLink').then((firstLink) => {
     cy.visit(firstLink)

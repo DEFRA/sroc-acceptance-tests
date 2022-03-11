@@ -50,9 +50,7 @@ When('a new account is created for me', () => {
 })
 
 And('I accept the invitation', () => {
-  MainMenu.user.getOption('Sign out').click()
-  cy.get('h1').should('contain', 'Sign in')
-  cy.url().should('include', '/auth/sign_in')
+  cy.signOut()
 
   cy.get('@user').then((user) => {
     LastEmailPage.lastEmail([user.email, 'created an account'])
