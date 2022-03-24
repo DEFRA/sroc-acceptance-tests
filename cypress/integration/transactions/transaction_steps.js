@@ -17,11 +17,7 @@ Before(() => {
   // available throughout, and to keep the tests a little cleaner.
   //
   // https://docs.cypress.io/guides/guides/network-requests.html#Waiting
-  cy.server()
-  cy.route({
-    method: 'GET',
-    url: '/regimes/cfd/transactions*'
-  }).as('getTransactions')
+  cy.intercept('GET', '**/regimes/*/transactions?search=*').as('getSearch')
 })
 
 When('I select the {string} regime', (regime) => {
@@ -33,7 +29,7 @@ And('I search for the customer {string}', (customer) => {
   TransactionsPage.search().type(customer)
   TransactionsPage.searchBtn().click()
 
-  cy.wait('@getTransactions')
+  cy.wait('@getSearch')
 })
 
 Then('I see only results for customer {string}', (customer) => {
