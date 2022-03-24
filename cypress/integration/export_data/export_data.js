@@ -17,6 +17,5 @@ Then('I can view the Data Protection Notice', () => {
 })
 
 And('I can download transaction data', () => {
-  ExportDataPage.downloadBtn().should('have.attr', 'href', '/regimes/pas/data_export/download')
-  // DownloadTransactionFilePage.downloadBtn().click()
+  ExportDataPage.downloadButton().should('have.attr', 'href', '/regimes/pas/data_export/download')
 })

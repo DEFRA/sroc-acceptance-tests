@@ -22,11 +22,11 @@ And('request another reset password email', () => {
   SignInPage.visit()
   SignInPage.forgotPasswordLink().click()
 
-  ForgotPasswordPage.mainHeading().should('contain', 'Forgot your password?')
+  ForgotPasswordPage.confirm()
 
   cy.get('@user').then((user) => {
-    ForgotPasswordPage.email().type(user.email)
-    ForgotPasswordPage.sendMeResetPasswordInstructions().click()
+    ForgotPasswordPage.emailInput().type(user.email)
+    ForgotPasswordPage.submitButton().click()
   })
 
   cy.get('.col > .alert')
@@ -55,9 +55,9 @@ When('I try to accept the first reset password email', () => {
     cy.visit(firstLink).then(() => {
       ChangePasswordPage.confirm()
 
-      ChangePasswordPage.password().type(Cypress.env('PASSWORD'), { log: false })
-      ChangePasswordPage.passwordConfirmation().type(Cypress.env('PASSWORD'), { log: false })
-      ChangePasswordPage.changeMyPassword().click()
+      ChangePasswordPage.passwordInput().type(Cypress.env('PASSWORD'), { log: false })
+      ChangePasswordPage.passwordConfirmationInput().type(Cypress.env('PASSWORD'), { log: false })
+      ChangePasswordPage.submitButton().click()
     })
   })
 })

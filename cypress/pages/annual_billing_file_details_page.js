@@ -1,7 +1,12 @@
-class AnnualBillingFileDetailsPage {
-  static mainHeading () {
-    return cy.get('h1')
+import BasePage from './base_page'
+
+class AnnualBillingFileDetailsPage extends BasePage {
+  static confirm () {
+    cy.get('h1').should('contain', 'Annual Billing Data File Details')
+    cy.url().should('include', '/annual_billing_data_files')
   }
+
+  // Elements
 
   static errorsHeading () {
     return cy.get('h2')
@@ -11,7 +16,7 @@ class AnnualBillingFileDetailsPage {
     return cy.get('.panel')
   }
 
-  static backBtn () {
+  static backButton () {
     return cy.get('.btn.btn-secondary')
   }
 }

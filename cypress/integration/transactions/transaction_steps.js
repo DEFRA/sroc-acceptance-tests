@@ -26,8 +26,8 @@ When('I select the {string} regime', (regime) => {
 })
 
 And('I search for the customer {string}', (customer) => {
-  TransactionsPage.search().type(customer)
-  TransactionsPage.searchBtn().click()
+  TransactionsPage.searchInput().type(customer)
+  TransactionsPage.submitButton().click()
 
   cy.wait('@getSearch')
 })

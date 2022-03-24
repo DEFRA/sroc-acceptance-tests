@@ -20,7 +20,7 @@ Then('I can view a list of Annual Billing Data Files', () => {
 
 And('I select an Annual Billing File to review', () => {
   AnnualBillingPage.fileNameLink().click()
-  AnnualBillingFileDetailsPage.mainHeading().should('be.visible')
+  AnnualBillingFileDetailsPage.confirm()
 })
 
 Then('I can view the details of the selected Annual Billing File', () => {
@@ -29,6 +29,6 @@ Then('I can view the details of the selected Annual Billing File', () => {
 })
 
 And('I can navigate back to Review Annual Billing', () => {
-  AnnualBillingFileDetailsPage.backBtn().click()
+  AnnualBillingFileDetailsPage.backButton().click()
   AnnualBillingPage.mainHeading().should('be.visible')
 })

@@ -1,20 +1,21 @@
-class TransactionsPage {
+import BasePage from './base_page'
+
+class TransactionsPage extends BasePage {
+  static confirm () {
+    cy.get('h1').should('contain', 'Transactions to be billed')
+    // As transactions is the root path when authenticated we can't guarantee we'll have a url to assert against
+  }
+
   static visit () {
     // Transactions is the root path. You just have to be authenticated
     // to see it
     cy.visit('/')
   }
 
-  static mainHeading () {
-    return cy.get('h1')
-  }
+  // Elements
 
-  static search () {
+  static searchInput () {
     return cy.get('#search')
-  }
-
-  static searchBtn () {
-    return cy.get('[name=commit]')
   }
 
   static resultsTable () {

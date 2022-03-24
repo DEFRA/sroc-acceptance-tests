@@ -34,15 +34,15 @@ When('a new account is created for me', () => {
 
   MainMenu.admin.getOption('User Management', '').click()
 
-  UsersPage.addUserAccount().click()
+  UsersPage.addUserAccountButton().click()
 
   cy.get('@user').then((user) => {
-    AddUserPage.email().type(user.email)
-    AddUserPage.firstName().type(user.firstName)
-    AddUserPage.lastName().type(user.lastName)
+    AddUserPage.emailInput().type(user.email)
+    AddUserPage.firstNameInput().type(user.firstName)
+    AddUserPage.lastNameInput().type(user.lastName)
 
-    AddUserPage.regimeAccess('Waste').click()
-    AddUserPage.addAndInviteUser().click()
+    AddUserPage.regimeAccessCheckbox('Waste').click()
+    AddUserPage.submitButton().click()
 
     cy.get('.col > .alert')
       .should('contain.text', 'User account created')
@@ -59,11 +59,11 @@ And('I accept the invitation', () => {
       const link = LastEmailPage.extractInvitationLink(lastEmail.last_email.body)
 
       cy.visit(link).then(() => {
-        AcceptInvitePage.mainHeading().should('contain', 'Set a password')
+        AcceptInvitePage.confirm()
 
-        AcceptInvitePage.password().type(Cypress.env('PASSWORD'), { log: false })
-        AcceptInvitePage.passwordConfirmation().type(Cypress.env('PASSWORD'), { log: false })
-        AcceptInvitePage.setPassword().click()
+        AcceptInvitePage.passwordInput().type(Cypress.env('PASSWORD'), { log: false })
+        AcceptInvitePage.passwordConfirmationInput().type(Cypress.env('PASSWORD'), { log: false })
+        AcceptInvitePage.submitButton().click()
       })
     })
   })
@@ -78,13 +78,13 @@ Then('I will be signed in with my new account', () => {
 
 And('I incorrectly enter my password 5 times', () => {
   cy.get('@user').then((user) => {
-    SignInPage.email().type(user.email)
+    SignInPage.emailInput().type(user.email)
 
     for (let i = 0; i < 5; i++) {
-      SignInPage.password().clear()
-      SignInPage.password().type(generateStringHelper())
+      SignInPage.passwordInput().clear()
+      SignInPage.passwordInput().type(generateStringHelper())
 
-      SignInPage.logIn().click()
+      SignInPage.submitButton().click()
     }
   })
 })
@@ -93,11 +93,11 @@ And('I have forgotten my password', () => {
   SignInPage.visit()
   SignInPage.forgotPasswordLink().click()
 
-  ForgotPasswordPage.mainHeading().should('contain', 'Forgot your password?')
+  ForgotPasswordPage.confirm()
 
   cy.get('@user').then((user) => {
-    ForgotPasswordPage.email().type(user.email)
-    ForgotPasswordPage.sendMeResetPasswordInstructions().click()
+    ForgotPasswordPage.emailInput().type(user.email)
+    ForgotPasswordPage.submitButton().click()
   })
 
   cy.get('.col > .alert')
@@ -125,8 +125,8 @@ And('request another unlock email', () => {
   ResendUnlockPage.confirm()
 
   cy.get('@user').then((user) => {
-    ResendUnlockPage.email().type(user.email)
-    ResendUnlockPage.resendUnlockInstructions().click()
+    ResendUnlockPage.emailInput().type(user.email)
+    ResendUnlockPage.submitButton().click()
   })
 })
 
@@ -153,7 +153,7 @@ But('I miss the first invitation email', () => {
 
 But('I miss the first unlock email', () => {
   cy.get('@user').then((user) => {
-    LastEmailPage.lastEmail([user.email, 'Your account has been locked'])
+    LastEmailPage.lastEmail([`Hello ${user.firstName} ${user.lastName}`, 'account has been locked'])
 
     cy.get('@lastEmail').then((lastEmail) => {
       const link = LastEmailPage.extractUnlockAccountLink(lastEmail.last_email.body)
@@ -167,15 +167,15 @@ And('request another invitation email', () => {
   MainMenu.admin.getOption('User Management', '').click()
 
   cy.get('@user').then((user) => {
-    UsersPage.searchName().type(user.lastName)
-    UsersPage.search().click()
+    UsersPage.searchNameInput().type(user.lastName)
+    UsersPage.submitButton().click()
 
-    UsersPage.searchResults().each((element, index) => {
+    UsersPage.searchResultsTable().each((element, index) => {
       cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) td`).eq(2).invoke('text').then((email) => {
         if (email === user.email) {
           cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1})`).invoke('attr', 'id').then((id) => {
-            UsersPage.searchResultEdit(id).click()
-            EditUserPage.resendInvite().click()
+            UsersPage.searchResultEditButton(id).click()
+            EditUserPage.resendInviteButton().click()
           })
         }
       })

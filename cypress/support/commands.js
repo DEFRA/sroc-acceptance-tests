@@ -33,9 +33,9 @@ import SignInPage from '../pages/sign_in_page'
  */
 Cypress.Commands.add('signIn', (email, password = Cypress.env('PASSWORD')) => {
   SignInPage.visit()
-  SignInPage.email().type(email)
-  SignInPage.password().type(password, { log: false })
-  SignInPage.logIn().click()
+  SignInPage.emailInput().type(email)
+  SignInPage.passwordInput().type(password, { log: false })
+  SignInPage.submitButton().click()
 })
 
 /**
