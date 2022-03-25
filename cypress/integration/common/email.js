@@ -6,9 +6,9 @@ import AddUserPage from '../../pages/add_user_page'
 import EditUserPage from '../../pages/edit_user_page'
 import ForgotPasswordPage from '../../pages/forgot_password_page'
 import LastEmailPage from '../../pages/last_email_page'
-import MainMenu from '../../pages/menus/main_menu'
 import ResendUnlockPage from '../../pages/resend_unlock_page'
 import SignInPage from '../../pages/sign_in_page'
+import TransactionsPage from '../../pages/transactions_page'
 import UsersPage from '../../pages/users_page'
 
 Given('I am a new user', () => {
@@ -32,7 +32,7 @@ Given('I am an existing user', () => {
 When('a new account is created for me', () => {
   cy.signIn(Cypress.config().users.admin.email)
 
-  MainMenu.admin.getOption('User Management', '').click()
+  TransactionsPage.adminMenu.getOption('User Management', '').click()
 
   UsersPage.addUserAccountButton().click()
 
@@ -72,7 +72,7 @@ And('I accept the invitation', () => {
 Then('I will be signed in with my new account', () => {
   cy.get('@user').then((user) => {
     const username = `${user.firstName} ${user.lastName}`
-    MainMenu.user.menuLink().should('contain', username)
+    TransactionsPage.userMenu.menuLink().should('contain', username)
   })
 })
 
@@ -164,7 +164,7 @@ But('I miss the first unlock email', () => {
 })
 
 And('request another invitation email', () => {
-  MainMenu.admin.getOption('User Management', '').click()
+  TransactionsPage.adminMenu.getOption('User Management', '').click()
 
   cy.get('@user').then((user) => {
     UsersPage.searchNameInput().type(user.lastName)
