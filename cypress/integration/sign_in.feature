@@ -4,7 +4,6 @@ Feature: Sign in
     Given I visit the sign in page
     Then I see 'Sign in' in the main heading
 
-  @wip
   Scenario: Log in to service
     Given I visit the sign in page
     When I enter my credentials
