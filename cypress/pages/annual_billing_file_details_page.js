@@ -1,6 +1,6 @@
-import BasePage from './base_page'
+import BaseAppPage from './base_app_page'
 
-class AnnualBillingFileDetailsPage extends BasePage {
+class AnnualBillingFileDetailsPage extends BaseAppPage {
   static confirm () {
     cy.get('h1').should('contain', 'Annual Billing Data File Details')
     cy.url().should('include', '/annual_billing_data_files')

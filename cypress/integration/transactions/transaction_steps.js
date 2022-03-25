@@ -1,4 +1,4 @@
-import { Then, When, And, Before } from 'cypress-cucumber-preprocessor/steps'
+import { Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
 import TransactionsPage from '../../pages/transactions_page'
 
 Before(() => {
@@ -18,11 +18,6 @@ Before(() => {
   //
   // https://docs.cypress.io/guides/guides/network-requests.html#Waiting
   cy.intercept('GET', '**/regimes/*/transactions?search=*').as('getSearch')
-})
-
-When('I select the {string} regime', (regime) => {
-  TransactionsPage.regimeMenu().click()
-  TransactionsPage.regimeMenuItem(regime).click()
 })
 
 And('I search for the customer {string}', (customer) => {

@@ -1,6 +1,6 @@
-import BasePage from './base_page'
+import BaseAppPage from './base_app_page'
 
-class EditUserPage extends BasePage {
+class EditUserPage extends BaseAppPage {
   static confirm () {
     cy.get('h1').should('contain', 'Edit User Account')
     cy.url().should('include', '/edit')

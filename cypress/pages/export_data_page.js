@@ -1,6 +1,6 @@
-import BasePage from './base_page'
+import BaseAppPage from './base_app_page'
 
-class ExportDataPage extends BasePage {
+class ExportDataPage extends BaseAppPage {
   static confirm () {
     cy.get('h1').should('contain', 'Download Transaction Data')
     cy.url().should('include', '/data_export')
