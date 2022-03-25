@@ -43,10 +43,8 @@ When('a new account is created for me', () => {
 
     AddUserPage.regimeAccessCheckbox('Waste').click()
     AddUserPage.submitButton().click()
-
-    cy.get('.col > .alert')
-      .should('contain.text', 'User account created')
   })
+  cy.alertShouldContain('User account created')
 })
 
 And('I accept the invitation', () => {
@@ -100,11 +98,9 @@ And('I have forgotten my password', () => {
     ForgotPasswordPage.submitButton().click()
   })
 
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'
-    )
+  cy.alertShouldContain(
+    'If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'
+  )
 })
 
 When('I follow the link to unlock my account', () => {
@@ -131,11 +127,9 @@ And('request another unlock email', () => {
 })
 
 Then('I will see confirmation my account is unlocked', () => {
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'Your account has been unlocked successfully. Please sign in to continue.'
-    )
+  cy.alertShouldContain(
+    'Your account has been unlocked successfully. Please sign in to continue.'
+  )
 })
 
 But('I miss the first invitation email', () => {
@@ -184,17 +178,11 @@ And('request another invitation email', () => {
 })
 
 Then('the TCM will confirm the user has been reinvited', () => {
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'User reinvited'
-    )
+  cy.alertShouldContain('User reinvited')
 })
 
 Then('I will see confirmation an unlock email has been sent', () => {
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'If your account exists, you will receive an email with instructions for how to unlock it in a few minutes.'
-    )
+  cy.alertShouldContain(
+    'If your account exists, you will receive an email with instructions for how to unlock it in a few minutes.'
+  )
 })

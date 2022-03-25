@@ -29,11 +29,9 @@ And('request another reset password email', () => {
     ForgotPasswordPage.submitButton().click()
   })
 
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'
-    )
+  cy.alertShouldContain(
+    'If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.'
+  )
 })
 
 And('I try to accept the first invitation email', () => {
@@ -64,11 +62,7 @@ When('I try to accept the first reset password email', () => {
 
 Then('the TCM will confuse me and not be helpful', () => {
   cy.log('User redirected to the sign in page with no message about token being invalid')
-  cy.get('.col > .alert')
-    .should(
-      'contain.text',
-      'You need to sign in before continuing'
-    )
+  cy.alertShouldContain('You need to sign in before continuing')
   cy.url().should('include', '/auth/sign_in')
 })
 
