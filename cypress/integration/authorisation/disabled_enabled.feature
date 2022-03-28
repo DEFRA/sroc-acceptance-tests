@@ -8,3 +8,11 @@ Feature: Disabled and enabled users
     Given my account has been disabled
     When I sign in as the 'readonly' user
     Then the TCM refuses me access
+
+  Scenario: Enabling a disabled user
+    Given my account has been disabled
+    When I sign in as the 'readonly' user
+    Then the TCM refuses me access
+    When my account has been enabled
+    And I sign in as the 'readonly' user
+    Then the TCM allows me access

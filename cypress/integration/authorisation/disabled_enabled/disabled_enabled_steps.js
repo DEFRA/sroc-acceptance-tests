@@ -27,6 +27,7 @@ Given('my account has been {word}', (status) => {
           } else {
             EditUserPage.enabledCheckbox().uncheck()
           }
+          EditUserPage.submitButton().click()
         })
       }
     })
@@ -41,4 +42,10 @@ Then('the TCM refuses me access', () => {
   cy.alertShouldContain(
     'Your account is not enabled.  Contact your administrator.'
   )
+})
+
+Then('the TCM allows me access', () => {
+  TransactionsPage.confirm()
+
+  TransactionsPage.userMenu.menuLink().should('contain', 'Readonly User')
 })
