@@ -97,13 +97,13 @@ And('I select {word} for financial year in the search bar', (option) => {
   })
 })
 
-And('I select {word} for items per page in the paging info bar', (option) => {
-  cy.get('select#per_page').select(option)
+And('I select {int} for items per page in the paging info bar', (option) => {
+  cy.get('select#per_page').select(option.toString())
 
   cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
 
   cy.get('select#per_page').find(':selected').invoke('text').then((val) => {
-    expect(val).to.equal(option)
+    expect(val).to.equal(option.toString())
   })
 })
 
