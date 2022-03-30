@@ -179,3 +179,28 @@ Cypress.Commands.add('cleanDb', () => {
     url: '/clean'
   }).its('status', { log: false }).should('equal', 200)
 })
+
+/**
+ * Use when you need to tell the TCM to run one of its jobs
+ *
+ * Typically the TCM runs background jobs according to a schedule, for example, importing transaction files. To support
+ * testing we added API endpoints which allow us to trigger these jobs. There is a potential benefit to being
+ * able to do this in production as well, for example, should a job fail and we want to retry. So, unlike some test
+ * endpoints these _are_ available in `production`.
+ *
+ * As a protection, you must be authenticated as an `admin` user to access them.
+ *
+ * Current available jobs are
+ *  - `import`
+ *  - `export`
+ */
+Cypress.Commands.add('runJob', (jobName) => {
+  cy.authenticate('admin@sroc.gov.uk')
+  cy.log(`Running ${jobName} job`)
+  cy.request({
+    log: false,
+    method: 'GET',
+    url: `/jobs/${jobName}`
+  }).its('status', { log: false }).should('equal', 200)
+  cy.killSession()
+})
