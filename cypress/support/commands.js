@@ -27,18 +27,6 @@ import SignInPage from '../pages/sign_in_page'
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 /**
- * Use when you want to authenticate via the UI
- *
- * It will complete the form and then submit it using the button in order to authenticate
- */
-Cypress.Commands.add('signIn', (email, password = Cypress.env('PASSWORD')) => {
-  SignInPage.visit()
-  SignInPage.emailInput().type(email)
-  SignInPage.passwordInput().type(password, { log: false })
-  SignInPage.submitButton().click()
-})
-
-/**
  * Use when you just need to authenticate the user and avoid the UI
  *
  * Because of Rails CSRF protections we still need to visit the sign in page to extract a valid csrf-token. But after
@@ -68,11 +56,50 @@ Cypress.Commands.add('authenticate', (email, password = Cypress.env('PASSWORD'))
 })
 
 /**
- * Use when you need to sign out the user i.e. kill the current session
+ * Use when you need to sign out the user i.e. kill the current session whilst avoiding the UI
+ *
+ * Because of Rails CSRF protections we still need to visit the sign in page to extract a valid csrf-token. But after
+ * that we can sign out without having to interact with the UI. This speeds things up and allows tests to focus on
+ * the feature under test.
  *
  * There are often times we need to sign in as one user in order to setup a test before then signing in as
  * another to complete the test. In order to sign in as the second we need to sign out of the first and
  * this command is a handy means of doing it.
+ */
+Cypress.Commands.add('killSession', () => {
+  cy.log('Killing the session')
+  cy.visit('auth/sign_in', { log: false })
+  cy.get('meta[name="csrf-token"]', { log: false })
+    .invoke({ log: false }, 'attr', 'content')
+    .then((csrfToken) => {
+      cy.request({
+        log: false,
+        method: 'DELETE',
+        url: '/auth/sign_out', // baseUrl will be prepended to this url
+        form: true, // indicates the body should be form urlencoded and sets Content-Type: application/x-www-form-urlencoded headers
+        body: {
+          authenticity_token: csrfToken
+        }
+      })
+    })
+})
+
+/**
+ * Use when you want to authenticate via the UI
+ *
+ * It will complete the form and then submit it using the button in order to authenticate
+ */
+Cypress.Commands.add('signIn', (email, password = Cypress.env('PASSWORD')) => {
+  SignInPage.visit()
+  SignInPage.emailInput().type(email)
+  SignInPage.passwordInput().type(password, { log: false })
+  SignInPage.submitButton().click()
+})
+
+/**
+ * Use when you need to sign out via the UI
+ *
+ * It will use the link in the User menu to sign out the user and kill the current session.
  */
 Cypress.Commands.add('signOut', () => {
   cy.log('Signing out')
