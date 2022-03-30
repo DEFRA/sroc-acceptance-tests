@@ -6,6 +6,16 @@ import { faker } from '@faker-js/faker'
 // There is nothing wrong with having logic within a step. But especially if that logic could be used elsewhere adding
 // it as a helper helps reduce the complexity of the steps and makes the project a little more maintainable.
 
+export function fixturePickerHelper (regimeSlug) {
+  const fixtures = {
+    cfd: 'cfdai394.dat.csv',
+    pas: 'pasai394.dat.csv',
+    wml: 'wmlai394.dat.csv'
+  }
+
+  return fixtures[regimeSlug]
+}
+
 /**
  * Helper that generates an object that represents a TCM user
  *
@@ -47,4 +57,4 @@ export function generateStringHelper (length = 8) {
   return faker.random.alpha({ count: length })
 }
 
-export default { generateUserHelper, generateStringHelper }
+export default { fixturePickerHelper, generateUserHelper, generateStringHelper }
