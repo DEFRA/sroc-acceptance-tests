@@ -304,7 +304,7 @@ And('generate the transaction file', () => {
   // TODO: Understand why we need this explicit wait() here. We've confirmed that the modal dialog is open
   // and visible and that we can access the controls. But without this wait() we find more often than not the
   // dialog is not dismissed when cancel is clicked which causes an error in the tests
-  cy.wait(500)
+  cy.wait(1000)
 
   cy.get('#summary-dialog input#confirm').check()
 
