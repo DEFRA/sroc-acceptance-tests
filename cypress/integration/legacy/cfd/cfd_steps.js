@@ -1,7 +1,8 @@
 // We disable this rule to prevent chai matchers like `to.be.empty` causing linting errors:
 /* eslint-disable no-unused-expressions */
 
-import { Given, Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
+import { Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
+
 import MainMenu from '../../../pages/menus/main_menu'
 import SignInPage from '../../../pages/sign_in_page'
 import TransactionsPage from '../../../pages/transactions_page'
@@ -41,7 +42,7 @@ Before(() => {
   cy.intercept('GET', '**/regimes/*/retrospective_summary?**').as('getRetrospectiveSummary')
 })
 
-Given('I sign in as the {word} user', (regime) => {
+And('I sign in as the {word} user', (regime) => {
   SignInPage.visit()
   SignInPage.emailInput().type(Cypress.config().users[regime].email)
   SignInPage.passwordInput().type(Cypress.env('PASSWORD'))
@@ -89,8 +90,6 @@ And('I log which region is selected in the search bar', () => {
 
 And('I select {word} for financial year in the search bar', (option) => {
   cy.get('select#fy').select(option)
-
-  cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
 
   cy.get('select#fy').find(':selected').invoke('text').then((val) => {
     expect(val).to.equal(option)
@@ -167,9 +166,24 @@ And('all transactions displayed have the same consent reference', () => {
 })
 
 Then('I select a category for each transaction', () => {
+  // First make sure the categories are sorted in ascending order. If we don't as we select a category the TCM reorders
+  // the list moving our updated record into the position of the next one we need to update/ This causes the test
+  // to error.
+  cy
+    .get('a[data-column="sroc_category"]')
+    .invoke('hasClass', 'sorted-asc')
+    .then((result) => {
+      cy.log(`Categories sorted ascending was ${result}`)
+      if (!result) {
+        cy.get('a[data-column="sroc_category"]').click()
+        cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
+      }
+    })
+  cy.wait(500)
+
   cy.get('.table-responsive > tbody > tr input.tcm-select-input').each((element, index) => {
-    cy.get('.table-responsive > tbody > tr:nth-child(1) input.tcm-select-input').type('{downarrow}')
-    cy.get('.table-responsive > tbody > tr:nth-child(1) input.tcm-select-input').type('{enter}')
+    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{downarrow}')
+    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{enter}')
     cy.wait('@getSearch')
     cy.wait(500)
   })
@@ -297,8 +311,6 @@ And('generate the transaction file', () => {
   cy.get('#summary-dialog input.file-generate-btn')
     .should('be.enabled')
     .click()
-
-  // cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
 })
 
 Then('I see confirmation the transaction file is queued for export', () => {
@@ -316,7 +328,7 @@ function getExportFilename (element) {
     // Use regex match to extract the text between "transaction file " and " for export"
     // ?<= and ?= stop the matcher from returning those strings, so we just get the filename
     // This results in an array with a single item, so we return that using [0]
-    .match(/(?<=transaction file )(.*)(?= for export)/g)[0]
+    .match(/(?<=transaction file |retrospective file )(.*)(?= for export)/g)[0]
 }
 
 And('I log the transaction filename to prove it can be used in another step', () => {
@@ -326,14 +338,10 @@ And('I log the transaction filename to prove it can be used in another step', ()
 
 And('I set region to {word}', (option) => {
   cy.get('select#region').select(option)
-
-  cy.wait('@getTransactionFileHistory').its('response.statusCode').should('eq', 200)
 })
 
 And('I set retrospectives region to {word}', (option) => {
   cy.get('select#region').select(option)
-
-  cy.wait('@getRetrospectivesSearch').its('response.statusCode').should('eq', 200)
 })
 
 And('I set pre post-sroc to {word}', (option) => {
