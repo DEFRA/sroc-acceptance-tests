@@ -24,7 +24,6 @@ Then('I am on the Transactions to be Billed page', () => {
 When('I sort by {string} in {word} order', (column, sortOrder) => {
   cy.get('@regime').then((regime) => {
     const dataColumn = columnPickerHelper(column, regime.slug)
-    cy.log(dataColumn)
 
     const sortOrders = {
       ascending: { class: 'sorted-asc', caret: 'oi-caret-top' },
@@ -44,10 +43,8 @@ When('I sort by {string} in {word} order', (column, sortOrder) => {
           cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
         }
       })
-    cy.wait(500)
-
-    // Next step is sorting in the order that's been requested. We check if it's already sorted as requested and if
-    // not we click it to force the sorting to match.
+      // Next step is sorting in the order that's been requested. We check if it's already sorted as requested and if
+      // not we click it to force the sorting to match.
       .get(`a[data-column="${dataColumn.name}"]`)
       .invoke('hasClass', sortOrders[sortOrder].class)
       .then((result) => {
@@ -56,12 +53,10 @@ When('I sort by {string} in {word} order', (column, sortOrder) => {
           cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
         }
       })
-    cy.wait(500)
-
-    cy.get(`th > [data-column="${dataColumn.name}"]`).then((element) => {
-      expect(element).to.have.class('sorted')
-      expect(element.find('span.oi')).to.have.class(sortOrders[sortOrder].caret)
-    })
+      .get(`th > [data-column="${dataColumn.name}"]`).then((element) => {
+        expect(element).to.have.class('sorted')
+        expect(element.find('span.oi')).to.have.class(sortOrders[sortOrder].caret)
+      })
   })
 })
 
