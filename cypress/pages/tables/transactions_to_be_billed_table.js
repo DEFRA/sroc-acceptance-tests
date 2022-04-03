@@ -27,6 +27,11 @@ class TransactionsToBeBilledTable extends BaseTable {
 
   // support
 
+  /**
+   * Use to get all column details for a particular regime
+   *
+   * We need to know the regime because the transactions to be billed table is different for each one.
+   */
   static columns (regimeSlug) {
     const sharedColumns = {
       Customer: { name: 'customer_reference', index: 4 },
@@ -62,6 +67,17 @@ class TransactionsToBeBilledTable extends BaseTable {
     }
   }
 
+  /**
+   * Use to get a specific column's details
+   *
+   * Given a column name (as seen in the UI) and regime it will return its data-column name and TD nth-child position.
+   * We can then use this to either grab a value or check for the existance of one.
+   *
+   * We need to know the regime because the transactions to be billed table is different for each one.
+   *
+   * If the a matching column is not found it will throw an error. This is intended to help highlight errors caused by
+   * typos, for example, using wrong case quickly.
+   */
   static columnPicker (columnName, regimeSlug) {
     const regimeColumns = this.columns(regimeSlug)
 
