@@ -113,10 +113,6 @@ And('I select {word} for items per page in the paging info bar', (option) => {
   })
 })
 
-Then('I set the temporary cessation flag for the first transaction', () => {
-  cy.get('.table-responsive > tbody > tr:first-child select.temporary-cessation-select').select('Y').should('have.value', 'true')
-})
-
 Then('I open the transaction detail page for the first transaction', () => {
   cy.get('tbody > tr:first-child button.show-details-button').click()
 

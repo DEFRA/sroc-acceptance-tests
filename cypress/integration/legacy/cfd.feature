@@ -22,7 +22,6 @@ Feature: CFD (Water Quality) Legacy
     And I select 50 for items per page in the paging info bar
     And I see the 'Ver' column is displayed
     And I see the 'Dis' column is displayed
-    Then I set the temporary cessation flag for the first transaction
     Then I open the transaction detail page for the first transaction
     And the main heading is 'Transaction detail'
     And the sub heading 'Suggested category' is visible

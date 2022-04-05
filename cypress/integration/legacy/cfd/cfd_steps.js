@@ -219,10 +219,6 @@ Then('I click the export button and check the export modal displays', () => {
     .click()
 })
 
-Then('I set the temporary cessation flag for the first transaction', () => {
-  cy.get('.table-responsive > tbody > tr:first-child select.temporary-cessation-select').select('Y').should('have.value', 'true')
-})
-
 And('approve the transactions for billing', () => {
   cy.get('button.approve-all-btn').click()
 
