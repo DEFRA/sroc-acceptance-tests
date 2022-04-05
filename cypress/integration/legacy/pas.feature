@@ -24,10 +24,6 @@ Feature: PAS (Installations) Legacy
     And the main heading is 'Transaction detail'
     And the sub heading 'Suggested category' is visible
     And the sub heading 'Related unbilled transactions' is visible
-    Then I open the transaction history page
-    And the main heading is 'Transaction change history'
-    And the first event is Transaction imported from file
-    Then I go back using the link
     Then I go back using the link
     Then I go back using the link
     Then I go back using the link

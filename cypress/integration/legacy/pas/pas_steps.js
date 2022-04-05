@@ -119,16 +119,6 @@ Then('I open the transaction detail page for the first transaction', () => {
   cy.wait('@getTransaction').its('response.statusCode').should('eq', 200)
 })
 
-Then('I open the transaction history page', () => {
-  cy.get('a.btn-outline-info').click()
-
-  cy.wait('@getTransactionHistory').its('response.statusCode').should('eq', 200)
-})
-
-And('the first event is Transaction imported from file', () => {
-  cy.get('tbody > tr:first-child > td:first-child').should('contain.text', 'Transaction imported from file')
-})
-
 Then('I go back using the link', () => {
   cy.get('.back-link').click()
 })
