@@ -1,13 +1,13 @@
 import BaseAppPage from './base_app_page'
 
 class AddPermitCategoryPage extends BaseAppPage {
-    static confirm () {
-      cy.get('h1').should('contain', 'New Permit Category')
-      cy.url().should('include', '/permit_categories/new')
-    }
+  static confirm () {
+    cy.get('h1').should('contain', 'New Permit Category')
+    cy.url().should('include', '/permit_categories/new')
+  }
 
-  //Elements
-  
+  // Elements
+
   static cancelButton () {
     return cy.get('a.btn-secondary')
   }
@@ -17,9 +17,8 @@ class AddPermitCategoryPage extends BaseAppPage {
   }
 
   static descriptionInput () {
-    return cy.get('input#permit_category_description')
+    return cy.get('textarea#permit_category_description')
   }
-
 }
 
 export default AddPermitCategoryPage

@@ -9,15 +9,12 @@ class PermitCategoriesPage extends BaseAppPage {
   // Elements
 
   static searchCodeInput () {
-      return cy.get('input#search[type="search"]')
+    return cy.get('input#search[type="search"]')
   }
 
   static addNewPermitCategoryButton () {
     return cy.get('button#new-category')
   }
-
-
-
 }
 
 export default PermitCategoriesPage
