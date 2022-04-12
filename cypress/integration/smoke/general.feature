@@ -74,3 +74,15 @@ Feature: Smoke test
     Then I see the Permit Categories page
     And I select 'Review Annual Billing Data' from the Annual Billing menu
     Then I see the Annual Billing Data Files page
+
+  Scenario: Page checks (Users)
+    And from the Admin menu I select User Management
+    Then I see the Users page
+    And from the User menu I select Change Password
+    Then I see the Change Password page
+    When I sign out
+    Then I see the Sign in page
+    When I click the Forgot your password link
+    Then I see the Forgot your password page
+    When I click the resend unlock instructions link
+    Then I see the Resend unlock instructions page
