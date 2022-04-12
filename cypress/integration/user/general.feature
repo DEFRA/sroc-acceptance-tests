@@ -6,8 +6,8 @@ Feature: Update user account
     Scenario: Update first name
          And I select a user
         When I update the users first name
-        #Then I will see confirmation the user account is updated
-        #And I can confirm the users first name is updated
+        Then I will see confirmation the user account is updated
+         And I can confirm the users first name is updated
 
     Scenario: Update Last name
         When I update a users last name
