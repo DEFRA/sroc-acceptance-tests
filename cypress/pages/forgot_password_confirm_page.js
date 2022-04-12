@@ -1,6 +1,6 @@
 import BasePage from './base_page'
 
-class ChangePasswordPage extends BasePage {
+class ForgotPasswordConfirmPage extends BasePage {
   static confirm () {
     cy.get('h1').should('contain', 'Change your password')
     cy.url().should('include', '/auth/password')
@@ -17,4 +17,4 @@ class ChangePasswordPage extends BasePage {
   }
 }
 
-export default ChangePasswordPage
+export default ForgotPasswordConfirmPage
