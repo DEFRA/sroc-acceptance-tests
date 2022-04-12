@@ -2,6 +2,7 @@ import { And, Then } from 'cypress-cucumber-preprocessor/steps'
 
 import MainMenu from '../../../pages/menus/main_menu'
 
+import AnnualBillingPage from '../../../pages/annual_billing_page'
 import ExcludedTransactionsPage from '../../../pages/excluded_transactions_page'
 import ExclusionReasonsPage from '../../../pages/exclusion_reasons_page'
 import ExportDataPage from '../../../pages/export_data_page'
@@ -21,6 +22,12 @@ And('I select {string} from the Transactions menu', (optionText) => {
 And('I select {string} from the Admin menu', (optionText) => {
   cy.get('@regime').then((regime) => {
     MainMenu.admin.getOption(optionText, regime.slug).click()
+  })
+})
+
+And('I select {string} from the Annual Billing menu', (optionText) => {
+  cy.get('@regime').then((regime) => {
+    MainMenu.annualBilling.getOption(optionText, regime.slug).click()
   })
 })
 
@@ -58,4 +65,8 @@ Then('I see the Permit Categories page', () => {
 
 Then('I see the Exclusion Reasons page', () => {
   ExclusionReasonsPage.confirm()
+})
+
+Then('I see the Annual Billing Data Files page', () => {
+  AnnualBillingPage.confirm()
 })

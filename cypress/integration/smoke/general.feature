@@ -24,6 +24,8 @@ Feature: Smoke test
     Then I see the Permit Categories page
     And I select 'Exclusion Reasons' from the Admin menu
     Then I see the Exclusion Reasons page
+    And I select 'Review Annual Billing Data' from the Annual Billing menu
+    Then I see the Annual Billing Data Files page
 
   Scenario: Page checks (PAS)
     When I select the 'Installations' regime
@@ -46,6 +48,8 @@ Feature: Smoke test
     Then I see the Permit Categories page
     And I select 'Exclusion Reasons' from the Admin menu
     Then I see the Exclusion Reasons page
+    And I select 'Review Annual Billing Data' from the Annual Billing menu
+    Then I see the Annual Billing Data Files page
 
   Scenario: Page checks (WML)
     When I select the 'Waste' regime
@@ -66,3 +70,7 @@ Feature: Smoke test
     Then I see the Permit Categories page
     And I select 'Exclusion Reasons' from the Admin menu
     Then I see the Exclusion Reasons page
+    And I select 'Permit Categories' from the Admin menu
+    Then I see the Permit Categories page
+    And I select 'Review Annual Billing Data' from the Annual Billing menu
+    Then I see the Annual Billing Data Files page
