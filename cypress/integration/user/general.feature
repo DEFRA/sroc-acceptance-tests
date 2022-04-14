@@ -23,3 +23,15 @@ Feature: Update user account
             | Installations |
             | Waste         |
             | Water Quality |  
+
+    Scenario: Disable user account
+        When I disable the users account
+        Then I will see confirmation the user account is updated
+        And I can confirm the users account is disabled           
+
+    Scenario: Enable user account
+        When I disable the users account
+        And I will see confirmation the user account is updated 
+        And I enable the users account
+        Then I will see confirmation the user account is updated
+        And I can confirm the users account is enabled
