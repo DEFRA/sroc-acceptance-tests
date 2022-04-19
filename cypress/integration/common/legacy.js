@@ -3,9 +3,10 @@
 
 import { Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
 
-import MainMenu from '../../../pages/menus/main_menu'
+import MainMenu from '../../pages/menus/main_menu'
 
-import TransactionsPage from '../../../pages/transactions_page'
+import RetrospectiveTransactionsPage from '../../pages/retrospective_transactions_page'
+import TransactionsPage from '../../pages/transactions_page'
 
 Before(() => {
   // When certain drop downs are selected the TCM will do a background refresh of the UI using XHR requests.
@@ -28,6 +29,12 @@ Before(() => {
 
   // This request is made just before displaying the generate transaction file summary modal
   cy.intercept('GET', '**/regimes/*/transaction_summary?**').as('getTransactionSummary')
+
+  // This request is made in transaction  history after changing the view option
+  cy.intercept('GET', '**/regimes/*/retrospectives?*').as('getRetrospectivesSearch')
+
+  // This request is made just before displaying the generate presroc transaction file summary modal
+  cy.intercept('GET', '**/regimes/*/retrospective_summary?**').as('getRetrospectiveSummary')
 })
 
 Then('the user menu is visible', () => {
@@ -43,7 +50,9 @@ And('the user menu says I am signed in as {string}', (username) => {
 })
 
 And('I select {string} from the Transactions menu', (optionText) => {
-  MainMenu.transactions.getOption(optionText, 'wml').click()
+  cy.get('@regime').then((regime) => {
+    MainMenu.transactions.getOption(optionText, regime.slug).click()
+  })
 })
 
 Then('the first record has file reference {string}', (fileReference) => {
@@ -129,8 +138,8 @@ And('the transaction categories will be set', () => {
 })
 
 And('the transaction charges will be set', () => {
-  cy.get('.table-responsive > tbody > tr').each((element, index) => {
-    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) td`).eq(10).should('not.contain.text', '(TBC)')
+  cy.get('@regime').then((regime) => {
+    TransactionsPage.table.cells('Amount', regime.slug).first().should('not.contain.text', '(TBC)')
   })
 })
 
@@ -180,7 +189,55 @@ Then('I see confirmation the transaction file is queued for export', () => {
   })
 })
 
+Then('I clear the search field and search again because of CMEA-306', () => {
+  TransactionsPage.searchInput().clear()
+  TransactionsPage.submitButton().click()
+})
+
 And('I log the transaction filename to prove it can be used in another step', () => {
   cy.get('@exportFilename')
     .then(filename => cy.log(filename))
+})
+
+And('I grab the first record and confirm its period is pre-April 2018', () => {
+  cy.get('@regime').then((regime) => {
+    RetrospectiveTransactionsPage.table.cells('Period', regime.slug).first().invoke('text').then((text) => {
+      const endPeriod = text.trim().slice(11)
+      const parts = endPeriod.split('/')
+      const year = parseInt(parts[2])
+      cy.log(`Extracted period end year is ${year}`)
+
+      expect(year).to.be.at.most(18)
+    })
+  })
+})
+
+Then('I generate the pre-sroc transaction file', () => {
+  cy.get('button.generate-transaction-file-btn').click()
+
+  cy.wait('@getRetrospectiveSummary').its('response.statusCode').should('eq', 200)
+
+  // NOTE: Whilst handy to confirm the dialog has appeared this is actually here to force the tests to wait for the
+  // dialog until it then tries to get() elements on it
+  cy.get('#summary-dialog')
+    .should('have.class', 'show')
+    .should('have.attr', 'aria-modal')
+  cy.get('#summary-dialog').should('not.have.attr', 'aria-hidden')
+
+  cy.get('#summary-dialog h5.modal-title')
+    .should('be.visible')
+    .should('contain.text', 'Generate Pre-SRoC File')
+
+  // TODO: Understand why we need this explicit wait() here. We've confirmed that the modal dialog is open
+  // and visible and that we can access the controls. But without this wait() we find more often than not the
+  // dialog is not dismissed when cancel is clicked which causes an error in the tests
+  cy.wait(500)
+
+  cy.get('#summary-dialog input#confirm').check()
+
+  cy.get('#summary-dialog input.file-generate-btn')
+    .should('be.enabled')
+    .click()
+
+  cy.wait('@getRetrospectivesSearch').its('response.statusCode').should('eq', 200)
 })
