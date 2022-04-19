@@ -1,7 +1,9 @@
 // We disable this rule to prevent chai matchers like `to.be.empty` causing linting errors:
 /* eslint-disable no-unused-expressions */
 
-import { Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
+import { Then, And, Before, When } from 'cypress-cucumber-preprocessor/steps'
+
+import { parseFileDataHelper } from '../../support/helpers'
 
 import MainMenu from '../../pages/menus/main_menu'
 
@@ -61,9 +63,14 @@ Then('the first record has file reference {string}', (fileReference) => {
   })
 })
 
-Then('I copy the consent reference from the first transaction', () => {
-  cy.get('.table-responsive > tbody > tr:first-child > td').eq(4).invoke('text').then((reference) => {
-    cy.wrap(reference.trim()).as('searchValue')
+Then('I copy the customer and consent references from the first transaction', () => {
+  cy.get('@regime').then((regime) => {
+    TransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
+      cy.wrap(reference.trim()).as('customerReference')
+    })
+    TransactionsPage.table.cell(0, 'Permit', regime.slug).invoke('text').then((reference) => {
+      cy.wrap(reference.trim()).as('searchValue')
+    })
   })
 })
 
@@ -197,6 +204,30 @@ Then('I clear the search field and search again because of CMEA-306', () => {
 And('I log the transaction filename to prove it can be used in another step', () => {
   cy.get('@exportFilename')
     .then(filename => cy.log(filename))
+})
+
+When('the transaction file is exported', () => {
+  cy.runJob('export')
+})
+
+Then('I can see it contains the transactions we billed', () => {
+  cy.get('@regime').then((regime) => {
+    cy.get('@customerReference').then((customerReference) => {
+      cy.get('@exportFilename').then((filename) => {
+        cy.task('s3Download', {
+          Bucket: Cypress.env('S3_BUCKET'),
+          remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
+          filePath: `${regime.slug}/${filename}`
+        }).then((data) => {
+          const exportData = parseFileDataHelper(data)
+
+          for (let i = 1; i < exportData.length - 2; i++) {
+            expect(exportData[i][2]).to.equal(customerReference)
+          }
+        })
+      })
+    })
+  })
 })
 
 And('I grab the first record and confirm its period is pre-April 2018', () => {
