@@ -14,7 +14,7 @@ Feature: CFD (Water Quality) Legacy
     And the first record has file reference 'CFDAI00394'
     And I select 'Transactions to be billed' from the Transactions menu
     And the main heading is 'Transactions to be billed'
-    Then I copy the consent reference from the first transaction
+    Then I copy the customer and consent references from the first transaction
     And search transactions with it
     And all transactions displayed have the same consent reference
     Then I select a category for each transaction
