@@ -63,11 +63,8 @@ Then('the first record has file reference {string}', (fileReference) => {
   })
 })
 
-Then('I copy the Customer and {word} references from the first transaction', (searchColumn) => {
+Then('I copy the {word} reference from the first transaction', (searchColumn) => {
   cy.get('@regime').then((regime) => {
-    TransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
-      cy.wrap(reference.trim()).as('customerReference')
-    })
     TransactionsPage.table.cell(0, searchColumn, regime.slug).invoke('text').then((reference) => {
       cy.wrap(reference.trim()).as('searchValue')
     })
@@ -210,20 +207,19 @@ When('the transaction file is exported', () => {
   cy.runJob('export', false)
 })
 
-Then('I can see it contains the transactions we billed', () => {
+Then('I can see it contains the transactions we billed', (expectedValues) => {
   cy.get('@regime').then((regime) => {
-    cy.get('@customerReference').then((customerReference) => {
-      cy.get('@exportFilename').then((filename) => {
-        cy.task('s3Download', {
-          Bucket: Cypress.env('S3_BUCKET'),
-          remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
-          filePath: `${regime.slug}/${filename}`
-        }).then((data) => {
-          const exportData = parseFileDataHelper(data)
+    cy.get('@exportFilename').then((filename) => {
+      cy.task('s3Download', {
+        Bucket: Cypress.env('S3_BUCKET'),
+        remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
+        filePath: `${regime.slug}/${filename}`
+      }).then((data) => {
+        const exportData = parseFileDataHelper(data)
+        const columnData = exportData.map((row) => row[2])
 
-          for (let i = 1; i < exportData.length - 2; i++) {
-            expect(exportData[i][2]).to.equal(customerReference)
-          }
+        cy.wrap(expectedValues.rawTable).each(row => {
+          expect(columnData).to.include(row[0])
         })
       })
     })
@@ -232,6 +228,9 @@ Then('I can see it contains the transactions we billed', () => {
 
 And('I grab the first record and confirm its period is pre-April 2018', () => {
   cy.get('@regime').then((regime) => {
+    RetrospectiveTransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
+      cy.wrap(reference.trim()).as('customerReference')
+    })
     RetrospectiveTransactionsPage.table.cells('Period', regime.slug).first().invoke('text').then((text) => {
       const endPeriod = text.trim().slice(11)
       const parts = endPeriod.split('/')

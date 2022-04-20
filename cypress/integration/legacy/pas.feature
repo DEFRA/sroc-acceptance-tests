@@ -14,7 +14,7 @@ Feature: PAS (Installations) Legacy
     And the first record has file reference 'PASAI00394'
     And I select 'Transactions to be billed' from the Transactions menu
     And the main heading is 'Transactions to be billed'
-    Then I copy the Customer and Permit references from the first transaction
+    Then I copy the Permit reference from the first transaction
     And search transactions with it
     And all transactions displayed have the same consent reference
     Then I select a category for each transaction
@@ -26,6 +26,7 @@ Feature: PAS (Installations) Legacy
     And there are no transactions to be billed displayed anymore
     When the transaction file is exported
     Then I can see it contains the transactions we billed
+      | A86000001P |
     # We need this step because of sticky search values
     # See https://eaflood.atlassian.net/browse/CMEA-306
     Then I clear the search field and search again because of CMEA-306
@@ -34,3 +35,6 @@ Feature: PAS (Installations) Legacy
     And I grab the first record and confirm its period is pre-April 2018
     Then I generate the pre-sroc transaction file
     Then I see confirmation the transaction file is queued for export
+    When the transaction file is exported
+    Then I can see it contains the transactions we billed
+      | A87000001P |
