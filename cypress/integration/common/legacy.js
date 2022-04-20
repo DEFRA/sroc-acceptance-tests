@@ -63,12 +63,12 @@ Then('the first record has file reference {string}', (fileReference) => {
   })
 })
 
-Then('I copy the customer and consent references from the first transaction', () => {
+Then('I copy the Customer and {word} references from the first transaction', (searchColumn) => {
   cy.get('@regime').then((regime) => {
     TransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
       cy.wrap(reference.trim()).as('customerReference')
     })
-    TransactionsPage.table.cell(0, 'Permit', regime.slug).invoke('text').then((reference) => {
+    TransactionsPage.table.cell(0, searchColumn, regime.slug).invoke('text').then((reference) => {
       cy.wrap(reference.trim()).as('searchValue')
     })
   })
@@ -207,7 +207,7 @@ And('I log the transaction filename to prove it can be used in another step', ()
 })
 
 When('the transaction file is exported', () => {
-  cy.runJob('export')
+  cy.runJob('export', false)
 })
 
 Then('I can see it contains the transactions we billed', () => {
