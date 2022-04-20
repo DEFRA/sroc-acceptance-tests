@@ -143,7 +143,7 @@ And('the transaction categories will be set', () => {
 
 And('the transaction charges will be set', () => {
   cy.get('@regime').then((regime) => {
-    TransactionsPage.table.cells('Amount', regime.slug).first().should('not.contain.text', '(TBC)')
+    TransactionsPage.table.cell(0, 'Amount', regime.slug).should('not.contain.text', '(TBC)')
   })
 })
 
@@ -231,7 +231,7 @@ And('I grab the first record and confirm its period is pre-April 2018', () => {
     RetrospectiveTransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
       cy.wrap(reference.trim()).as('customerReference')
     })
-    RetrospectiveTransactionsPage.table.cells('Period', regime.slug).first().invoke('text').then((text) => {
+    RetrospectiveTransactionsPage.table.cell(0, 'Period', regime.slug).invoke('text').then((text) => {
       const endPeriod = text.trim().slice(11)
       const parts = endPeriod.split('/')
       const year = parseInt(parts[2])
