@@ -1,10 +1,14 @@
 // We disable this rule to prevent chai matchers like `to.be.empty` causing linting errors:
 /* eslint-disable no-unused-expressions */
 
-import { Given, Then, And, Before } from 'cypress-cucumber-preprocessor/steps'
-import MainMenu from '../../../pages/menus/main_menu'
-import SignInPage from '../../../pages/sign_in_page'
-import TransactionsPage from '../../../pages/transactions_page'
+import { Then, And, Before, When } from 'cypress-cucumber-preprocessor/steps'
+
+import { parseFileDataHelper } from '../../support/helpers'
+
+import MainMenu from '../../pages/menus/main_menu'
+
+import RetrospectiveTransactionsPage from '../../pages/retrospective_transactions_page'
+import TransactionsPage from '../../pages/transactions_page'
 
 Before(() => {
   // When certain drop downs are selected the TCM will do a background refresh of the UI using XHR requests.
@@ -22,31 +26,17 @@ Before(() => {
   // This request is made when a transaction is selected from the results
   cy.intercept('GET', '**/regimes/*/transactions/*').as('getTransaction')
 
-  // This request is made from the transaction detail page to view its history
-  cy.intercept('GET', '**/transactions/*/audit').as('getTransactionHistory')
-
   // This request is made when the 'Approve' button is clicked
   cy.intercept('PUT', '**/regimes/*/transactions/approve.json').as('putApproveTransactions')
 
   // This request is made just before displaying the generate transaction file summary modal
   cy.intercept('GET', '**/regimes/*/transaction_summary?**').as('getTransactionSummary')
 
-  // This request is made in transaction file history after search criteria have been selected
-  cy.intercept('GET', '**/regimes/*/transaction_files?search**').as('getTransactionFileHistory')
-
   // This request is made in transaction  history after changing the view option
   cy.intercept('GET', '**/regimes/*/retrospectives?*').as('getRetrospectivesSearch')
 
   // This request is made just before displaying the generate presroc transaction file summary modal
   cy.intercept('GET', '**/regimes/*/retrospective_summary?**').as('getRetrospectiveSummary')
-})
-
-Given('I sign in as the {word} user', (regime) => {
-  SignInPage.visit()
-  SignInPage.emailInput().type(Cypress.config().users[regime].email)
-  SignInPage.passwordInput().type(Cypress.env('PASSWORD'))
-
-  SignInPage.submitButton().click()
 })
 
 Then('the user menu is visible', () => {
@@ -61,12 +51,10 @@ And('the user menu says I am signed in as {string}', (username) => {
   MainMenu.user.menuLink().should('contain', username)
 })
 
-And('I select {string} from the Regime menu', (optionText) => {
-  MainMenu.regime.getOption(optionText).click()
-})
-
 And('I select {string} from the Transactions menu', (optionText) => {
-  MainMenu.transactions.getOption(optionText, 'pas').click()
+  cy.get('@regime').then((regime) => {
+    MainMenu.transactions.getOption(optionText, regime.slug).click()
+  })
 })
 
 Then('the first record has file reference {string}', (fileReference) => {
@@ -75,41 +63,11 @@ Then('the first record has file reference {string}', (fileReference) => {
   })
 })
 
-And('I log the number of transactions displayed', () => {
-  TransactionsPage.table.rows().then((rows) => {
-    cy.log(`Number of transactions listed is ${rows.length}`)
-  })
-})
-
-And('I log which region is selected in the search bar', () => {
-  cy.get('select#region').find(':selected').invoke('text').then((text) => {
-    cy.log(`Region selected for search is ${text}`)
-  })
-})
-
-And('I select {word} for financial year in the search bar', (option) => {
-  cy.get('select#fy').select(option)
-
-  cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
-
-  cy.get('select#fy').find(':selected').invoke('text').then((val) => {
-    expect(val).to.equal(option)
-  })
-})
-
-And('I select {word} for items per page in the paging info bar', (option) => {
-  cy.get('select#per_page').select(option)
-
-  cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
-
-  cy.get('select#per_page').find(':selected').invoke('text').then((val) => {
-    expect(val).to.equal(option)
-  })
-})
-
-Then('I copy the consent reference from the first transaction', () => {
-  cy.get('.table-responsive > tbody > tr:first-child > td').eq(4).invoke('text').then((reference) => {
-    cy.wrap(reference.trim()).as('searchValue')
+Then('I copy the {word} reference from the first transaction', (searchColumn) => {
+  cy.get('@regime').then((regime) => {
+    TransactionsPage.table.cell(0, searchColumn, regime.slug).invoke('text').then((reference) => {
+      cy.wrap(reference.trim()).as('searchValue')
+    })
   })
 })
 
@@ -135,14 +93,43 @@ And('all transactions displayed have the same consent reference', () => {
 })
 
 Then('I select a category for each transaction', () => {
-  cy.get('.table-responsive > tbody > tr input.tcm-select-input').each((element, index) => {
-    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{downarrow}')
-    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{enter}')
-    cy.wait('@getSearch')
-    cy.wait(500)
-  })
+  // First make sure the categories are sorted in ascending order. If we don't as we select a category the TCM reorders
+  // the list moving our updated record into the position of the next one we need to update. This causes the test
+  // to error.
+  cy.get('@regime').then((regime) => {
+    const dataColumn = TransactionsPage.table.columnPicker('Category', regime.slug)
 
-  cy.wait(500)
+    // If the column has not been previously selected then it won't have either sort classes. We confirm whether we are
+    // dealing with a sorted column first by checking for the class 'sorted'.
+    cy
+      .get(`a[data-column="${dataColumn.name}"]`)
+      .invoke('hasClass', 'sorted')
+      .then((result) => {
+        // If its not sorted we click it. We can't govern what order it gets sorted in because that's governed by
+        // the sort order cached to a cookie in the session. This is why we need the second step below.
+        if (!result) {
+          cy.get(`a[data-column="${dataColumn.name}"]`).click()
+          cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
+        }
+      })
+      // Next step is sorting in the order we need. We check if it's already sorted as needed and if
+      // not we click it to force the sorting to be ascending.
+      .get(`a[data-column="${dataColumn.name}"]`)
+      .invoke('hasClass', 'sorted-asc')
+      .then((result) => {
+        if (!result) {
+          cy.get(`a[data-column="${dataColumn.name}"]`).click()
+          cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
+        }
+      })
+      // Now we can get on with the work of selecting the category code
+      .get('.table-responsive > tbody > tr input.tcm-select-input').each((element, index) => {
+        cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{downarrow}')
+        cy.wait(500)
+        cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) input.tcm-select-input`).type('{enter}')
+        cy.wait('@getSearch')
+      })
+  })
 })
 
 And('the transaction categories will be set', () => {
@@ -155,9 +142,13 @@ And('the transaction categories will be set', () => {
 })
 
 And('the transaction charges will be set', () => {
-  cy.get('.table-responsive > tbody > tr').each((element, index) => {
-    cy.get(`.table-responsive > tbody > tr:nth-child(${index + 1}) td`).eq(12).should('not.contain.text', '(TBC)')
+  cy.get('@regime').then((regime) => {
+    TransactionsPage.table.cell(0, 'Amount', regime.slug).should('not.contain.text', '(TBC)')
   })
+})
+
+Then('there are no transactions to be billed displayed anymore', () => {
+  cy.get('.table-responsive > tbody > tr').should('not.exist')
 })
 
 And('approve the transactions for billing', () => {
@@ -172,7 +163,6 @@ And('generate the transaction file', () => {
   cy.get('button.generate-transaction-file-btn').click()
 
   cy.wait('@getTransactionSummary').its('response.statusCode').should('eq', 200)
-  cy.wait('@getSearch').its('response.statusCode').should('eq', 200)
 
   // NOTE: Whilst handy to confirm the dialog has appeared this is actually here to force the tests to wait for the
   // dialog until it then tries to get() elements on it
@@ -198,45 +188,57 @@ And('generate the transaction file', () => {
 })
 
 Then('I see confirmation the transaction file is queued for export', () => {
-  cy.get('div.alert-success.alert-dismissable').should('contain.text', 'Successfully queued')
+  cy.extractExportFilename().then((filename) => {
+    cy.wrap(filename).as('exportFilename')
+  })
 })
 
-Then('there are no transactions to be billed displayed anymore', () => {
-  cy.get('.table-responsive > tbody > tr').should('not.exist')
+Then('I clear the search field and search again because of CMEA-306', () => {
+  TransactionsPage.searchInput().clear()
+  TransactionsPage.submitButton().click()
 })
 
-And('I set region to {word}', (option) => {
-  cy.get('select#region').select(option)
-
-  cy.wait('@getTransactionFileHistory').its('response.statusCode').should('eq', 200)
+And('I log the transaction filename to prove it can be used in another step', () => {
+  cy.get('@exportFilename')
+    .then(filename => cy.log(filename))
 })
 
-And('I set pre post-sroc to {word}', (option) => {
-  cy.get('select#prepost').select(option)
-
-  cy.wait('@getTransactionFileHistory').its('response.statusCode').should('eq', 200)
+When('the transaction file is exported', () => {
+  cy.runJob('export', false)
 })
 
-Then('I set view to {string}', (option) => {
-  cy.get('select#mode').select(option)
+Then('I can see it contains the transactions we billed', (expectedValues) => {
+  cy.get('@regime').then((regime) => {
+    cy.get('@exportFilename').then((filename) => {
+      cy.task('s3Download', {
+        Bucket: Cypress.env('S3_BUCKET'),
+        remotePath: Cypress.env('S3_DOWNLOAD_PATH'),
+        filePath: `${regime.slug}/${filename}`
+      }).then((data) => {
+        const exportData = parseFileDataHelper(data)
+        const columnData = exportData.map((row) => row[2])
 
-  cy.wait('@getRetrospectivesSearch').its('response.statusCode').should('eq', 200)
-})
-
-And('I set retrospectives region to {word}', (option) => {
-  cy.get('select#region').select(option)
-
-  cy.wait('@getRetrospectivesSearch').its('response.statusCode').should('eq', 200)
+        cy.wrap(expectedValues.rawTable).each(row => {
+          expect(columnData).to.include(row[0])
+        })
+      })
+    })
+  })
 })
 
 And('I grab the first record and confirm its period is pre-April 2018', () => {
-  cy.get('.table-responsive > tbody > tr:first-child td').eq(7).invoke('text').then((text) => {
-    const endPeriod = text.trim().slice(11)
-    const parts = endPeriod.split('/')
-    const year = parseInt(parts[2])
-    cy.log(`Extracted period end year is ${year}`)
+  cy.get('@regime').then((regime) => {
+    RetrospectiveTransactionsPage.table.cell(0, 'Customer', regime.slug).invoke('text').then((reference) => {
+      cy.wrap(reference.trim()).as('customerReference')
+    })
+    RetrospectiveTransactionsPage.table.cell(0, 'Period', regime.slug).invoke('text').then((text) => {
+      const endPeriod = text.trim().slice(11)
+      const parts = endPeriod.split('/')
+      const year = parseInt(parts[2])
+      cy.log(`Extracted period end year is ${year}`)
 
-    expect(year).to.be.at.most(18)
+      expect(year).to.be.at.most(18)
+    })
   })
 })
 
